@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -74,11 +76,11 @@ fun GameScreen(viewModel: GameViewModel) {
             Spacer(modifier = Modifier.height(12.dp))
 
             // Difficulty controls
+            Text("Difficulty:")
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Difficulty:")
                 SegmentedDifficulty(current = state.difficulty) {
                     viewModel.setDifficulty(it)
                 }
@@ -128,20 +130,48 @@ fun SegmentedDifficulty(current: AiDifficulty, onSelected: (AiDifficulty) -> Uni
 
 @Composable
 fun AiTraceView(trace: List<AiEvaluation>) {
-    Column {
-        Text("AI evaluations:", style = MaterialTheme.typography.bodySmall)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            "AI evaluations:",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
         if (trace.isEmpty()) {
-            Text("No trace available")
+            Text("No trace available", style = MaterialTheme.typography.bodySmall)
         } else {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 trace.forEach { t ->
-                    Card(modifier = Modifier.padding(4.dp)) {
-                        Column(modifier = Modifier.padding(8.dp)) {
-                            Text("Idx: ${t.index}")
-                            Text("Score: ${t.score}")
+                    Card(
+                        modifier = Modifier
+                            .width(90.dp)
+                            .height(60.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(6.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                "Idx: ${t.index}",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                            Text(
+                                "Score: ${t.score}",
+                                style = MaterialTheme.typography.labelSmall
+                            )
                         }
                     }
                 }
@@ -149,6 +179,7 @@ fun AiTraceView(trace: List<AiEvaluation>) {
         }
     }
 }
+
 
 @Composable
 fun BoardComponent(board: List<Cell>, onCellClick: (Int) -> Unit, cellSize: Dp) {
